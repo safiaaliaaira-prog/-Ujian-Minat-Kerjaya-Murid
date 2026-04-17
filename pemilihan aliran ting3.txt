@@ -1,0 +1,308 @@
+```html
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Awak cenderung ke arah mana?</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --gradient-main: linear-gradient(135deg, #6e8efb, #a777e3);
+            --sains-bg: #00d2ff;
+            --sastera-bg: #ff9a9e;
+            --teknik-bg: #a18cd1;
+            --bg-body: #f0f2f5;
+        }
+
+        body {
+            background-color: var(--bg-body);
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 500px;
+        }
+
+        .header-card {
+            background: var(--gradient-main);
+            color: white;
+            padding: 30px 20px;
+            border-radius: 25px;
+            text-align: center;
+            box-shadow: 0 10px 20px rgba(110, 142, 251, 0.2);
+            margin-bottom: 20px;
+        }
+
+        .quiz-card {
+            background: white;
+            padding: 30px;
+            border-radius: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: #eee;
+            border-radius: 4px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            width: 0%;
+            background: var(--gradient-main);
+            transition: width 0.3s;
+        }
+
+        .question-text {
+            font-size: 1.2rem;
+            font-weight: 600;
+            text-align: center;
+            min-height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #2d3436;
+        }
+
+        .btn-group {
+            display: grid;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .btn {
+            padding: 15px;
+            border: none;
+            border-radius: 15px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .btn-primary { background: var(--gradient-main); color: white; }
+        .btn-yes { background: #00b894; color: white; }
+        .btn-no { background: #ff7675; color: white; }
+        .btn:active { transform: scale(0.95); }
+
+        #result-screen { display: none; }
+
+        .result-banner {
+            padding: 30px;
+            border-radius: 25px;
+            color: white;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .score-box {
+            display: flex;
+            justify-content: space-between;
+            background: rgba(255,255,255,0.2);
+            padding: 15px;
+            border-radius: 15px;
+            margin-top: 15px;
+        }
+
+        .history-list {
+            margin-top: 20px;
+            font-size: 0.9rem;
+        }
+
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- Quiz Screen -->
+    <div id="quiz-screen">
+        <div class="header-card">
+            <h1 style="margin:0; font-size:1.4rem;">Awak cenderung ke arah mana?</h1>
+            <p style="margin:10px 0 0; opacity:0.8; font-size:0.9rem;">Analisis 30 Soalan Potensi</p>
+        </div>
+
+        <div class="quiz-card">
+            <div id="start-view">
+                <p style="text-align:center;">Hai Saf! Jawab 30 soalan ini untuk tahu aliran mana yang paling sesuai dengan jiwa awak.</p>
+                <button class="btn btn-primary" style="width:100%;" onclick="startQuiz()">MULA KUIZ SEKARANG</button>
+            </div>
+
+            <div id="question-view" style="display:none;">
+                <div style="display:flex; justify-content:space-between; font-size:0.8rem; font-weight:bold; color:#888;">
+                    <span id="q-label">Soalan 1/30</span>
+                    <span id="q-percent">0%</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progress-fill"></div>
+                </div>
+                <div class="question-text" id="question-text">Sila tunggu...</div>
+                <div class="btn-group">
+                    <button class="btn btn-yes" onclick="answer(true)">YA, AWAK MINAT</button>
+                    <button class="btn btn-no" onclick="answer(false)">TIDAK MINAT</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Result Screen -->
+    <div id="result-screen">
+        <div class="result-banner" id="res-banner">
+            <p style="margin:0; font-weight:bold; font-size:0.8rem; opacity:0.9;">HASIL ANALISIS:</p>
+            <h2 id="res-title" style="margin:10px 0; font-size:1.8rem;">ALIRAN ...</h2>
+            <p id="res-desc" style="font-size:0.9rem;"></p>
+            
+            <div class="score-box">
+                <div><small>SAINS</small><br><b id="s-score">0</b></div>
+                <div><small>SASTERA</small><br><b id="st-score">0</b></div>
+                <div><small>TEKNIKAL</small><br><b id="t-score">0</b></div>
+            </div>
+        </div>
+        
+        <button class="btn btn-primary" style="width:100%;" onclick="startQuiz()">Ulang Kuiz</button>
+        
+        <div class="quiz-card" style="margin-top:20px;">
+            <h4 style="margin:0 0 10px;">Rekod Keputusan</h4>
+            <div id="history-container" class="history-list"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const questions = [
+        // SAINS (10 soalan)
+        { q: "Awak suka mengkaji bagaimana mikroskop berfungsi?", f: "s" },
+        { q: "Awak berminat dengan teori astronomi dan bintang?", f: "s" },
+        { q: "Awak seronok selesaikan masalah matematik yang kompleks?", f: "s" },
+        { q: "Awak suka baca berita tentang robotik dan AI?", f: "s" },
+        { q: "Awak berminat dengan kajian biologi atau sel?", f: "s" },
+        { q: "Awak suka buat eksperimen kimia di makmal?", f: "s" },
+        { q: "Awak berminat dengan hukum fizik dan tenaga?", f: "s" },
+        { q: "Awak suka kumpul data dan buat graf laporan?", f: "s" },
+        { q: "Awak nak jadi doktor atau saintis penyelidik?", f: "s" },
+        { q: "Awak suka subjek Sains Tulen di sekolah?", f: "s" },
+        // SASTERA (10 soalan)
+        { q: "Awak suka menulis esei, cerpen atau puisi?", f: "st" },
+        { q: "Awak berminat dengan sejarah tamadun dunia?", f: "st" },
+        { q: "Awak suka aktiviti berdebat atau berpidato?", f: "st" },
+        { q: "Awak gemar membaca novel atau karya sastera?", f: "st" },
+        { q: "Awak rasa mudah untuk belajar bahasa asing?", f: "st" },
+        { q: "Awak suka aktiviti seni visual dan lukisan?", f: "st" },
+        { q: "Awak berminat dengan kerja psikologi atau kebajikan?", f: "st" },
+        { q: "Awak suka subjek Sejarah dan Bahasa?", f: "st" },
+        { q: "Awak nak jadi peguam atau wartawan?", f: "st" },
+        { q: "Awak suka subjek Pendidikan Seni Visual?", f: "st" },
+        // TEKNIKAL (10 soalan)
+        { q: "Awak suka repair barang elektrik di rumah?", f: "t" },
+        { q: "Awak berminat dengan cara enjin kereta berfungsi?", f: "t" },
+        { q: "Awak suka bertukang kayu atau besi?", f: "t" },
+        { q: "Awak lebih suka belajar secara hands-on (praktikal)?", f: "t" },
+        { q: "Awak suka rekaan grafik atau suntingan video?", f: "t" },
+        { q: "Awak suka memasak dan mencuba resipi kulinari?", f: "t" },
+        { q: "Awak berminat dengan sistem perpaipan atau litar?", f: "t" },
+        { q: "Awak suka bina model atau binaan DIY?", f: "t" },
+        { q: "Awak nak jadi chef atau juruteknik pakar?", f: "t" },
+        { q: "Awak suka subjek RBT atau Lukisan Teknik?", f: "t" }
+    ];
+
+    let current = 0;
+    let score = { s: 0, st: 0, t: 0 };
+    let qList = [];
+
+    function startQuiz() {
+        qList = [...questions].sort(() => Math.random() - 0.5);
+        current = 0;
+        score = { s: 0, st: 0, t: 0 };
+        document.getElementById('start-view').style.display = 'none';
+        document.getElementById('question-view').style.display = 'block';
+        document.getElementById('quiz-screen').style.display = 'block';
+        document.getElementById('result-screen').style.display = 'none';
+        showQuestion();
+    }
+
+    function showQuestion() {
+        const q = qList[current];
+        const p = Math.round((current / qList.length) * 100);
+        document.getElementById('q-label').innerText = `Soalan ${current + 1}/${qList.length}`;
+        document.getElementById('q-percent').innerText = p + "%";
+        document.getElementById('progress-fill').style.width = p + "%";
+        document.getElementById('question-text').innerText = q.q;
+    }
+
+    function answer(yes) {
+        if(yes) score[qList[current].f]++;
+        current++;
+        if(current < qList.length) {
+            showQuestion();
+        } else {
+            showFinalResult();
+        }
+    }
+
+    function showFinalResult() {
+        document.getElementById('quiz-screen').style.display = 'none';
+        document.getElementById('result-screen').style.display = 'block';
+
+        let top = Object.keys(score).reduce((a, b) => score[a] > score[b] ? a : b);
+        const banner = document.getElementById('res-banner');
+        const title = document.getElementById('res-title');
+        const desc = document.getElementById('res-desc');
+
+        if(top === 's') {
+            banner.style.backgroundColor = 'var(--sains-bg)';
+            title.innerText = "ALIRAN SAINS";
+            desc.innerText = "Awak sangat logik dan analitikal! Awak sesuai dalam bidang perubatan, kejuruteraan atau teknologi.";
+        } else if(top === 'st') {
+            banner.style.backgroundColor = 'var(--sastera-bg)';
+            title.innerText = "ALIRAN SASTERA";
+            desc.innerText = "Awak berjiwa kreatif dan komunikatif! Bidang undang-undang, media atau seni sangat serasi dengan awak.";
+        } else {
+            banner.style.backgroundColor = 'var(--teknik-bg)';
+            title.innerText = "ALIRAN TEKNIKAL";
+            desc.innerText = "Awak pakar dalam kemahiran praktikal! Bidang vokasional, kulinari atau teknikal adalah kekuatan awak.";
+        }
+
+        document.getElementById('s-score').innerText = score.s;
+        document.getElementById('st-score').innerText = score.st;
+        document.getElementById('t-score').innerText = score.t;
+
+        // Simpan rekod ke memori telefon/browser
+        const hist = JSON.parse(localStorage.getItem('saf_quiz_history') || "[]");
+        hist.unshift({ a: title.innerText, d: new Date().toLocaleDateString('ms-MY') });
+        localStorage.setItem('saf_quiz_history', JSON.stringify(hist.slice(0, 5)));
+        renderHistory();
+    }
+
+    function renderHistory() {
+        const hist = JSON.parse(localStorage.getItem('saf_quiz_history') || "[]");
+        const container = document.getElementById('history-container');
+        if(hist.length === 0) {
+            container.innerHTML = "<p style='color:#999;font-size:0.8rem;'>Tiada rekod.</p>";
+            return;
+        }
+        container.innerHTML = hist.map(i => `
+            <div class="history-item"><span><b>${i.a}</b></span><span>${i.d}</span></div>
+        `).join('');
+    }
+
+    window.onload = renderHistory;
+</script>
+
+</body>
+</html>
+
+```
